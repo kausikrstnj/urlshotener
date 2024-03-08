@@ -7,8 +7,6 @@ const crypto = require("crypto");
 const axios = require('axios');
 
 //otp page
-
-
 exports.otp = async (req, res) => {
     try {
         res.render("sendEmail");
@@ -230,10 +228,6 @@ exports.shrinkUrl = async (req, res) => {
         });
         await newUrl.save();
         await User.findByIdAndUpdate(userId, { $push: { urls: newUrl._id } });
-        console.log('urls-------------------', urls)
-        console.log('urls.clicks----------', urls.clicks)
-        console.log('urls.shortUrl----------', urls.shortUrl)
-
         res.render("home", { userId: userId, urls: urls });
 
     } catch (error) {
