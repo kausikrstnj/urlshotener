@@ -1,11 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Url = require("../models/url");
 const nodemailer = require('nodemailer');
 const crypto = require("crypto");
 const axios = require('axios');
 
 //otp page
+
+
 exports.otp = async (req, res) => {
     try {
         res.render("sendEmail");
@@ -71,10 +74,13 @@ exports.login = async (req, res) => {
             { expiresIn: "1h" },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+
             }
         );
-        res.status(201).json({ msg: "User Logged in successfully." });
+
+        const userWithUrls = await User.findById(user.id).populate('urls').exec();
+        const urls = userWithUrls.urls;
+        res.render("home", { userId: user.id, urls: urls });
     } catch (error) {
         console.error(error.message);
         res.status(500).send("server error");
@@ -125,10 +131,8 @@ exports.sendEmail = async (req, res) => {
         user.randomstring = resetToken;
         await user.save();
 
-        // Send email with password reset link
         const url = process.env.URL;
         const resetLink = `${url}/passwordReset?token=${resetToken}&email=${email}`;
-        // Send email with the resetLink using your email service
         await sendResetEmail(email, resetLink); // Implement this function to send email
 
         res.status(200).json({ msg: "Password reset link has been sent to your email successfully." });
@@ -205,3 +209,35 @@ exports.postResetPassword = async (req, res) => {
         return res.status(500).send("Internal Server Error");
     }
 };
+
+exports.shrinkUrl = async (req, res) => {
+    const { url } = req.body;
+    const userId = req.body.userId;
+    const clicks = req.body.clicks;
+
+    try {
+        const response = await axios.post('https://api.encurtador.dev/encurtamentos', { url }, { headers: { 'Content-Type': 'application/json' } });
+        const shortUrl = response.data.urlEncurtada;
+        const userWithUrls = await User.findById(userId).populate('urls').exec();
+        const urls = userWithUrls.urls;
+        console.log('urls', urls);
+        // Save the new URL with a reference to the user
+        const newUrl = new Url({
+            originalUrl: url,
+            shortUrl: shortUrl,
+            clicks: clicks,
+            user: userId,
+        });
+        await newUrl.save();
+        // Optionally, update the user's document to include this URL
+        await User.findByIdAndUpdate(userId, { $push: { urls: newUrl._id } });
+        res.render("home", { userId: userId, urls: urls });
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to shorten the URL' });
+    }
+};
+
+
+
