@@ -43,20 +43,13 @@ app.post("/shrinkUrl", authController.shrinkUrl);
 
 app.get('/https', async (req, res) => {
     try {
-        // Extract the short URL parameter from the request
         const shortUrl = req.query.shortUrl;
-        console.log('shortUrl-------------- ', shortUrl)
-        // Find the corresponding long URL in the database
         const urlEntry = await Url.findOne({ shortUrl });
-        console.log('urlEntry-------------- ', urlEntry)
-        // If the URL entry is found, increment the click count and redirect
         if (urlEntry) {
             urlEntry.clicks++;
             await urlEntry.save();
-            console.log('originalUrl----------------------- : ', urlEntry.originalUrl)
             return res.redirect(urlEntry.originalUrl);
         } else {
-            // If the URL entry is not found, return a 404 status
             return res.sendStatus(404);
         }
     } catch (error) {

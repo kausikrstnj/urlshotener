@@ -125,13 +125,12 @@
 
 <body>
     <div>
+        <br>
         <h1>URL Shortener Application</h1>
+        <br>
     </div>
     <div class="form-container">
-
-
         <form class="form" method="POST" action="/shrinkUrl">
-
             <div class="form-group">
                 <label for="url">URL</label>
                 <input type="text" id="url" name="url" placeholder="Enter your url" required="">
@@ -139,10 +138,10 @@
             <button class="form-submit-btn" type="submit">Shrink URL</button>
             <input type="hidden" name="userId" value="<%= userId %>">
         </form>
-
     </div>
+    <br>
     <h1>Shrinked URLs</h1>
-
+    <br>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -154,28 +153,33 @@
         <tbody>
             <% if (urls && urls.length> 0) { %>
                 <% urls.forEach(url=> { %>
-
                     <tr>
-                        <td><a href="<%= url.originalUrl %>">
+                        <td>
+                            <a href="<%= url.originalUrl %>">
                                 <%= url.originalUrl %>
-                            </a></td>
+                            </a>
+                        </td>
                         <td>
                             <form class="form" method="GET" action="/https">
-
                                 <input type="hidden" name="shortUrl" value="<%= url.shortUrl %>">
-                                <button type="submit" id="shortUrl" name="shortUrl"
-                                    value="https://<%= url.shortUrl %>">https://<%= url.shortUrl %></button>
+                                <button style="color: #1778f2;background: transparent;border: none;" type="submit"
+                                    id="shortUrl" name="shortUrl" value="https://<%= url.shortUrl %>">https://
+                                    <%= url.shortUrl %>
+                                </button>
                             </form>
                         </td>
                         <td>
-                            <%= url.Clicks %>
+                            <%= url.clicks %>
                         </td>
                     </tr>
                     <% }); %>
                         <% } else { %>
-                            <p>No URLs available.</p>
+                            <tr>
+                                <td colspan="3">No URLs available.</td>
+                            </tr>
                             <% } %>
         </tbody>
+
     </table>
 
 </body>

@@ -229,8 +229,11 @@ exports.shrinkUrl = async (req, res) => {
             user: userId,
         });
         await newUrl.save();
-        // Optionally, update the user's document to include this URL
         await User.findByIdAndUpdate(userId, { $push: { urls: newUrl._id } });
+        console.log('urls-------------------', urls)
+        console.log('urls.clicks----------', urls.clicks)
+        console.log('urls.shortUrl----------', urls.shortUrl)
+
         res.render("home", { userId: userId, urls: urls });
 
     } catch (error) {
